@@ -1,5 +1,28 @@
 ---
 title: "My Project"
-format: gfm
+format:
+  gfm:
+    code-fold: true
+    embed-resources: true
 ---
 
+Loading libraries
+```{r lib_load, warning=FALSE, message=FALSE}
+library(ggplot2)
+library(pals)
+library(factoextra)
+library(reshape)
+library(ggpubr)
+library(matrixStats)
+library(tidyverse)
+library(decoupleR)
+library(rcartocolor)
+`%!in%` = Negate(`%in%`)
+library(DESeq2)
+library(ggrepel)
+library(rcartocolor)
+library(colourvalues)
+library(readxl)
+library(ggh4x)
+
+```
