@@ -1,11 +1,10 @@
 ---
-title: "My Project"
-format:
-  gfm:
-    code-fold: true
-    embed-resources: true
+title: "Figures"
+author: "Dr. Panagiotis Chouvardas"
+date: "2024-12-02"
+output: 
+  github_document:
 ---
-
 ## Loading libraries
 
 ```{r lib_load, warning=FALSE, message=FALSE}
