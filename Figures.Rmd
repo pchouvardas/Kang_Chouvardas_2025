@@ -59,7 +59,7 @@ ggplot(cores_gs, aes(x=Sample, y=count, fill=GS)) + geom_bar(stat="identity", po
 
 ### 1D. Organoid formation
 
-```{r 1D, warning=FALSE, message=FALSE}
+```{r 1D, warning=FALSE, message=FALSE, fig.width = 3}
 rate <- data.frame(Success = c("Yes", "Yes", "No", "No"), Core = c("Tumor","Benign", "Tumor", "Benign"),
                    count = c(41, 29, 15, 11))
 
@@ -72,4 +72,30 @@ ggplot(rate, aes(x=Core, y=count, fill=Success)) + geom_bar(stat = "identity", p
   guides(fill = guide_legend(title.position = "top", title.hjust = 0.5))
 ```
 
+### 1E. Organoid Morphology
+
+```{r 1E, warning=FALSE, message=FALSE}
+df2 <- cores
+df2[,9:11] <- df2[,9:11]/rowSums(df2[,9:11])
+df2 <- as.data.frame(df2)
+df2 <- melt(as.data.frame(df2), measure.vars = c("Solid", "Hollow", "Mixed"))
+ggplot(df2, aes(x=condition, y=value, fill=condition)) + geom_boxplot() + geom_jitter(size=0.5) +
+  facet_wrap(~variable) + stat_compare_means(aes(label = paste0("p = ", after_stat(p.format))), hjust=-0.5, size=2) +
+  scale_fill_manual(values = color_values(1:11,"piyg")[c(10,2)]) + theme_classic2() +
+  ylab("Fraction") + theme(legend.position = "none") +
+  theme(axis.text = element_text(size=6)) + theme(axis.title = element_text(size=10)) +theme(axis.title.x = element_blank()) 
+```
+
+### 1F. Organoid counts
+
+```{r 1F, warning=FALSE, message=FALSE}
+df2 <- cores
+df2 <- as.data.frame(df2)
+df2 <- melt(as.data.frame(df2), measure.vars = c("Solid", "Hollow", "Mixed"))
+ggplot(df2, aes(x=condition, y=value, fill=condition)) + geom_boxplot() + geom_jitter(size=0.5) +
+  stat_compare_means(aes(label = paste0("p = ", after_stat(p.format))), hjust=-0.5, size=2) +
+  scale_fill_manual(values = color_values(1:11,"piyg")[c(10,2)]) + theme_classic2() +
+  ylab("Total Organoid Count") + theme(legend.position = "none") +
+  theme(axis.text = element_text(size=6)) + theme(axis.title = element_text(size=10)) +theme(axis.title.x = element_blank()) 
+```
 

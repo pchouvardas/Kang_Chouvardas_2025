@@ -9,6 +9,8 @@ Dr. Panagiotis Chouvardas
 - [Figure 1](#figure-1)
   - [1C. Cohort.](#1c-cohort)
   - [1D. Organoid formation](#1d-organoid-formation)
+  - [1E. Organoid Morphology](#1e-organoid-morphology)
+  - [1F. Organoid counts](#1f-organoid-counts)
 
 ## Pre-processing
 
@@ -77,3 +79,34 @@ ggplot(rate, aes(x=Core, y=count, fill=Success)) + geom_bar(stat = "identity", p
 ```
 
 ![](Figures_files/figure-gfm/1D-1.png)<!-- -->
+
+### 1E. Organoid Morphology
+
+``` r
+df2 <- cores
+df2[,9:11] <- df2[,9:11]/rowSums(df2[,9:11])
+df2 <- as.data.frame(df2)
+df2 <- melt(as.data.frame(df2), measure.vars = c("Solid", "Hollow", "Mixed"))
+ggplot(df2, aes(x=condition, y=value, fill=condition)) + geom_boxplot() + geom_jitter(size=0.5) +
+  facet_wrap(~variable) + stat_compare_means(aes(label = paste0("p = ", after_stat(p.format))), hjust=-0.5, size=2) +
+  scale_fill_manual(values = color_values(1:11,"piyg")[c(10,2)]) + theme_classic2() +
+  ylab("Fraction") + theme(legend.position = "none") +
+  theme(axis.text = element_text(size=6)) + theme(axis.title = element_text(size=10)) +theme(axis.title.x = element_blank()) 
+```
+
+![](Figures_files/figure-gfm/1E-1.png)<!-- -->
+
+### 1F. Organoid counts
+
+``` r
+df2 <- cores
+df2 <- as.data.frame(df2)
+df2 <- melt(as.data.frame(df2), measure.vars = c("Solid", "Hollow", "Mixed"))
+ggplot(df2, aes(x=condition, y=value, fill=condition)) + geom_boxplot() + geom_jitter(size=0.5) +
+  stat_compare_means(aes(label = paste0("p = ", after_stat(p.format))), hjust=-0.5, size=2) +
+  scale_fill_manual(values = color_values(1:11,"piyg")[c(10,2)]) + theme_classic2() +
+  ylab("Total Organoid Count") + theme(legend.position = "none") +
+  theme(axis.text = element_text(size=6)) + theme(axis.title = element_text(size=10)) +theme(axis.title.x = element_blank()) 
+```
+
+![](Figures_files/figure-gfm/1F-1.png)<!-- -->
