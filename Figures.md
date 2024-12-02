@@ -3,7 +3,16 @@ Figures
 Dr. Panagiotis Chouvardas
 2024-12-02
 
-## Loading libraries
+- [Pre-processing](#pre-processing)
+  - [Loading libraries](#loading-libraries)
+  - [Reading master file](#reading-master-file)
+- [Figure 1](#figure-1)
+  - [1C. Cohort.](#1c-cohort)
+  - [1D. Organoid formation](#1d-organoid-formation)
+
+## Pre-processing
+
+### Loading libraries
 
 ``` r
 library(ggplot2)
@@ -24,7 +33,7 @@ library(readxl)
 library(ggh4x)
 ```
 
-## Reading master file
+### Reading master file
 
 ``` r
 cores <- read_xlsx("masterfile_GS_TC_allcores.xlsx")
@@ -33,7 +42,9 @@ cores$condition <- "Tumor"
 cores$condition[which(cores$`Pathology evaluation` == "normal")] <- "Benign"
 ```
 
-## Figure 1C. Cohort.
+## Figure 1
+
+### 1C. Cohort.
 
 ``` r
 cores_gs <- melt(table(cores$`Lab Code`, cores$`Pathology evaluation`))
@@ -49,3 +60,20 @@ ggplot(cores_gs, aes(x=Sample, y=count, fill=GS)) + geom_bar(stat="identity", po
 ```
 
 ![](Figures_files/figure-gfm/1C-1.png)<!-- -->
+
+### 1D. Organoid formation
+
+``` r
+rate <- data.frame(Success = c("Yes", "Yes", "No", "No"), Core = c("Tumor","Benign", "Tumor", "Benign"),
+                   count = c(41, 29, 15, 11))
+
+strip <- strip_themed(background_x = elem_list_rect(fill = color_values(1:16,"piyg")[c(16,2)]), text_x = element_text(color="white"))
+
+ggplot(rate, aes(x=Core, y=count, fill=Success)) + geom_bar(stat = "identity", position = "fill", col="black")+ 
+  facet_wrap2(~Core, nrow = 2, scales = "free", strip = strip) + theme_classic2() + scale_fill_manual(values = rev(c("gray", "white"))) +
+  geom_text(aes(label=count),position = position_fill(vjust = 0.5)) + theme(legend.position = "top") +
+  ylab("Fraction") + theme(axis.text.x = element_blank()) + theme(axis.title.x = element_blank()) +
+  guides(fill = guide_legend(title.position = "top", title.hjust = 0.5))
+```
+
+![](Figures_files/figure-gfm/1D-1.png)<!-- -->
