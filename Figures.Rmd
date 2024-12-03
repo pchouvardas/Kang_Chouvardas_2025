@@ -99,3 +99,31 @@ ggplot(df2, aes(x=condition, y=value, fill=condition)) + geom_boxplot() + geom_j
   theme(axis.text = element_text(size=6)) + theme(axis.title = element_text(size=10)) +theme(axis.title.x = element_blank()) 
 ```
 
+## Sup. Figure 1
+
+### S1A. Patient cohort GS
+
+```{r S1A, warning=FALSE, message=FALSE}
+clin <- read_xlsx("Clinical.xlsx", sheet = "Sheet1")
+clin$GS <- paste0("(", clin$Path_GS1, "+", clin$Path_GS2, ")")
+clin2 <- melt(table(clin$GS))
+clin2$Var.1 <- factor(clin2$Var.1)
+clin2$Var.1 <- gsub("\\(", "", clin2$Var.1)
+clin2$Var.1 <- gsub("\\)", "", clin2$Var.1)
+ggplot(clin2[which(clin2$Var.1 != 0),], aes(x=Var.1, y=value, fill=Var.1)) + geom_bar(stat="identity", col="black") +
+  theme_classic2() + xlab("GS") + scale_fill_manual(values = color_values(8:1,"piyg")[2:8]) +
+  geom_text(aes(label=value),position = position_fill(vjust = 0.5), size=2) + ylab("# of Patients") + theme(legend.position = "none")
+```
+
+### S1B. Tumor content per core
+
+```{r S1B, warning=FALSE, message=FALSE}
+cores$`%tumor_content` <- gsub("<","",cores$`%tumor_content`)
+cores2 <- filter(cores, `Pathology evaluation` != "normal")
+cores2$`%tumor_content` <- as.numeric(cores2$`%tumor_content`)
+ggplot(cores2, aes(x=`Pathology evaluation`, y=`%tumor_content`, fill=`Pathology evaluation`)) + 
+  geom_boxplot() + geom_jitter() +ylab("Tumor Content (%)") +
+  theme_classic2() + theme(legend.position = "none") +
+  xlab("GS") + scale_fill_manual(values = color_values(8:1,"piyg")[2:8]) 
+```
+

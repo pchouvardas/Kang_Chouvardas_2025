@@ -11,6 +11,9 @@ Dr. Panagiotis Chouvardas
   - [1D. Organoid formation](#1d-organoid-formation)
   - [1E. Organoid Morphology](#1e-organoid-morphology)
   - [1F. Organoid counts](#1f-organoid-counts)
+- [Sup. Figure 1](#sup-figure-1)
+  - [S1A. Patient cohort GS](#s1a-patient-cohort-gs)
+  - [S1B. Tumor content per core](#s1b-tumor-content-per-core)
 
 ## Pre-processing
 
@@ -110,3 +113,35 @@ ggplot(df2, aes(x=condition, y=value, fill=condition)) + geom_boxplot() + geom_j
 ```
 
 ![](Figures_files/figure-gfm/1F-1.png)<!-- -->
+
+## Sup. Figure 1
+
+### S1A. Patient cohort GS
+
+``` r
+clin <- read_xlsx("Clinical.xlsx", sheet = "Sheet1")
+clin$GS <- paste0("(", clin$Path_GS1, "+", clin$Path_GS2, ")")
+clin2 <- melt(table(clin$GS))
+clin2$Var.1 <- factor(clin2$Var.1)
+clin2$Var.1 <- gsub("\\(", "", clin2$Var.1)
+clin2$Var.1 <- gsub("\\)", "", clin2$Var.1)
+ggplot(clin2[which(clin2$Var.1 != 0),], aes(x=Var.1, y=value, fill=Var.1)) + geom_bar(stat="identity", col="black") +
+  theme_classic2() + xlab("GS") + scale_fill_manual(values = color_values(8:1,"piyg")[2:8]) +
+  geom_text(aes(label=value),position = position_fill(vjust = 0.5), size=2) + ylab("# of Patients") + theme(legend.position = "none")
+```
+
+![](Figures_files/figure-gfm/S1A-1.png)<!-- -->
+
+### S1B. Tumor content per core
+
+``` r
+cores$`%tumor_content` <- gsub("<","",cores$`%tumor_content`)
+cores2 <- filter(cores, `Pathology evaluation` != "normal")
+cores2$`%tumor_content` <- as.numeric(cores2$`%tumor_content`)
+ggplot(cores2, aes(x=`Pathology evaluation`, y=`%tumor_content`, fill=`Pathology evaluation`)) + 
+  geom_boxplot() + geom_jitter() +ylab("Tumor Content (%)") +
+  theme_classic2() + theme(legend.position = "none") +
+  xlab("GS") + scale_fill_manual(values = color_values(8:1,"piyg")[2:8]) 
+```
+
+![](Figures_files/figure-gfm/S1B-1.png)<!-- -->
