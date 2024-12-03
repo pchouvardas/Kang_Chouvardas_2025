@@ -19,9 +19,6 @@ Dr. Panagiotis Chouvardas
 
 ### Loading libraries
 
-<details>
-  <summary>Show code</summary>
-
 ``` r
 library(ggplot2)
 library(pals)
@@ -40,7 +37,6 @@ library(colourvalues)
 library(readxl)
 library(ggh4x)
 ```
-</details>
 
 ### Reading master file
 
