@@ -1,7 +1,6 @@
 Figures
 ================
 Dr. Panagiotis Chouvardas
-2024-12-02
 
 - [Pre-processing](#pre-processing)
   - [Loading libraries](#loading-libraries)
