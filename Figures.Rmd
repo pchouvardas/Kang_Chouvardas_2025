@@ -22,12 +22,15 @@ library(tidyverse)
 library(decoupleR)
 library(rcartocolor)
 `%!in%` = Negate(`%in%`)
+library(BiocGenerics)
 library(DESeq2)
 library(ggrepel)
 library(rcartocolor)
 library(colourvalues)
 library(readxl)
 library(ggh4x)
+library(tidymodels)
+
 
 ```
 
@@ -356,3 +359,339 @@ ggplot(cluster_df3, aes(x=cluster, y=value, fill=cluster)) + geom_boxplot() +
   facet_wrap(~variable, scale="free", nrow = 1) +
   scale_fill_manual(values = carto_pal(9, "Vivid")[c(6, 7)]) +
   theme(legend.position = "none")  + ylim(0,1.01) 
+```
+
+
+## Sup. Figure 8
+
+### S8A. RTK ligands and receptors expression
+
+```{r S8A, warning=FALSE, message=FALSE}
+design3 <- merge(design2, cluster_df, by="Sample")
+design3$cluster <- factor(design3$cluster)
+rownames(design3) <- design3$Sample
+df2 <- df[,colnames(df) %in% rownames(design3)]
+design3 <- design3[colnames(df2),]
+
+dds <- DESeqDataSetFromMatrix(countData=df2, 
+                              colData=design3, 
+                              design=~cluster, tidy = FALSE)
+
+dds <- dds[(rowSums(counts(dds) > 3) > 3 ),]
+dds <- DESeq(dds)
+
+res <- results(dds, contrast = c("cluster", "C1", "C2"))
+res <- as.data.frame(res)
+res <- res[order(res$padj, decreasing = F),]
+head(res, 50)
+res <- cbind.data.frame(res, Gene_name = rownames(res))
+res$log2FoldChange[which(res$log2FoldChange < -7)] <- -7
+res$log2FoldChange[which(res$log2FoldChange > 7)] <- 7
+res$DE <- "ns"
+res$DE[which((res$log2FoldChange < -1)&(res$padj<0.01))] <- "Downregulated"
+res$DE[which((res$log2FoldChange > 1)&(res$padj<0.01))] <- "Upregulated"
+res <- na.omit(res)
+my_pal2 <- carto_pal(9, "Vivid")[c(7, 9, 6)]
+
+RTKs <- read.table("Receptors.csv", header = T, sep=",")
+res_RTK <- res[RTKs$Approved.symbol,]
+
+RTK_ligands <- read_xlsx("Ligands.xlsx")
+res_RTK_l <- res[RTK_ligands$Ligands,]
+
+res_RTK$type="Receptors"
+res_RTK_l$type="Ligands"
+res_RTK_lr <- rbind(res_RTK, res_RTK_l)
+ggplot(res_RTK_lr[which(res_RTK_lr$padj < 0.05),], aes(x = reorder(Gene_name, log2FoldChange), y = log2FoldChange)) + 
+  geom_bar(aes(fill = log2FoldChange), stat = "identity") +
+  scale_fill_gradient2(low = my_pal2[1], high = my_pal2[3], 
+                       mid = my_pal2[2], midpoint = 0) + 
+  theme_classic2() +
+  theme(axis.title = element_text(face = "bold", size = 12),
+        axis.text.x = 
+          element_text(angle = 45, hjust = 1, size =8, face= "bold"),
+        axis.text.y = element_text(size =10, face= "bold"),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank()) +
+  theme(legend.position = "none") + ylab("log2FoldChange (Cluster 1 vs 2)") +
+  facet_wrap(~type, nrow = 2, scales = "free") +theme(axis.title.x = element_blank())
+```
+
+### S8B. PDO drug screen vs clusters (not significant results)
+
+```{r S8B, warning=FALSE, message=FALSE}
+ggplot(cluster_df2[which(cluster_df2$variable %!in% c("Crizotinib", "Daunorubicin", "Ponatinib", "Sunitinib")),], aes(x=cluster, y=value, fill=cluster)) + geom_boxplot() + 
+  stat_compare_means(vjust = 1.5,hjust=-1,aes(label = paste0("p = ", after_stat(p.format)))) + theme_classic2() +
+  geom_jitter(alpha=0.2) + xlab("Clusters") + ylab("Viability") +
+  facet_wrap(~variable, scale="free", ncol = 1) +
+  scale_fill_manual(values = carto_pal(9, "Vivid")[c(6, 7)]) +
+  theme(legend.position = "none") + ylim(0,1.01)
+```
+
+## Figure 5
+
+### 5A. Pathway activity comparison
+
+```{r 5A, warning=FALSE, message=FALSE}
+prog <- get_progeny()
+colnames(prog)[3] <- "mor"
+contrast_acts <- run_viper(t(df_norm), prog, minsize = 5)
+contrast_acts <- merge(contrast_acts, cluster_df, by.x="condition", by.y="Sample")
+ggplot(contrast_acts[which(contrast_acts$source %in% c("Androgen", "Hypoxia", "NFkB", "p53", "PI3K", "TNFa", "Trail", "WNT")),], 
+       aes(x=cluster, y=scale(score, center = 0), fill=cluster)) + geom_boxplot() + 
+  stat_compare_means(vjust = 1,aes(label = paste0("p = ", after_stat(p.format)))) + theme_classic2() +
+  facet_wrap(~source, scales = "free", nrow = 2) + geom_jitter(alpha=0.2) +
+  scale_fill_manual(values = carto_pal(9, "Vivid")[c(6, 7)]) +
+  theme(legend.position = "none") +
+    ylab("Activity (VIPER)") + xlab("Clusters")
+```
+
+### 5B. Machine learning, cross validation plotting and selection of the best model
+
+
+```{r 5B, warning=FALSE, message=FALSE}
+contrast_acts2 <- contrast_acts %>% pivot_wider(id_cols = condition, names_from = source, values_from = score) %>% as.data.frame()
+contrast_acts2 <- merge(contrast_acts2, cluster_df, by.x="condition", by.y="Sample")
+data <- contrast_acts2
+data <- data[,-c(1, ncol(data))]
+set.seed(123)
+#Put 3/4 of the data into the training set
+data_split <- initial_split(data, prop = 3/4, strata = cluster)
+
+#Create df for 2 datasets
+train_data <- training(data_split)
+test_data <- testing(data_split)
+
+
+#Feature selection on training dataset
+train_data_selected <- train_data
+# Define resampling method (cross-validation)
+set.seed(345)
+train_cv_folds <- vfold_cv(train_data_selected, v = 10, strata = cluster)
+
+#Apply feature selection to the test data
+test_data_selected <- test_data
+
+
+#Create recipe
+formula <- as.formula(cluster ~ .)
+
+basic_rec <- recipe(formula, data = train_data)
+prep(basic_rec)
+
+#Specify models
+log_spec <-
+  multinom_reg(penalty = tune(), mixture = 1) %>% 
+  set_engine("glmnet") %>%
+  set_mode("classification")
+
+rf_spec <- 
+  rand_forest( mtry = tune(), min_n = tune(), trees = 100) %>%
+  set_engine("ranger", importance = "impurity") %>% # impurity: provide variable importance scores for this model
+  set_mode("classification")
+
+xgb_spec <- 
+  boost_tree(trees = 1000, tree_depth = tune(), learn_rate = tune()) %>%
+  set_engine("xgboost") %>%
+  set_mode("classification") 
+
+knn_spec <- 
+  nearest_neighbor(neighbors = tune()) %>% 
+  set_engine("kknn") %>%
+  set_mode("classification") 
+
+svm_spec <-
+  svm_rbf(cost = tune(), rbf_sigma = tune()) %>%
+  set_mode("classification") %>%
+  set_engine("kernlab", maxiter = 10000, tol = 1e-5)
+
+all_workflows <- 
+  workflow_set( preproc = list("basic" = basic_rec),
+                models = list(logistic = log_spec, random_forest = rf_spec,
+                              xgboost = xgb_spec, knn = knn_spec,
+                              svm = svm_spec))
+#Tuning
+#Define grid
+log_grid <- grid_regular(
+  penalty(), # Penalty (lambda) on log10 scale ,# Mixture (alpha) from 0 (ridge) to 1 (lasso)
+  levels = 50  # Number of levels for each parameter
+)
+
+
+num_predictors <- ncol(train_data) - 1 #subtract sample, value and responder
+
+rf_grid <- grid_regular(
+  mtry(range = c(1, num_predictors)),   
+  min_n(range = c(1, 10)), # min_n between 1 and 10
+  levels = 5              # 5 levels for each parameter
+)
+
+xgb_grid <- grid_regular(
+  tree_depth(range = c(1, 10)),
+  learn_rate(range = c(-3, -1)), # log scale for learning rate
+  levels = 5
+)
+
+knn_grid <- grid_regular(
+  neighbors(range = c(1, 20)),
+  levels = 10
+)
+
+svm_grid <- grid_regular(
+  cost(range = c(-5, 2)), # log scale for cost
+  rbf_sigma(range = c(-3, 0)), # log scale for sigma
+  levels = 5
+)
+
+
+#Tune 
+all_workflows <- all_workflows %>%
+  option_add(id="basic_logistic", resamples = train_cv_folds,
+             grid = log_grid) %>%
+  option_add(id="basic_random_forest", resamples = train_cv_folds, 
+             grid = rf_grid) %>%
+  option_add(id="basic_xgboost", resamples = train_cv_folds, 
+             grid = xgb_grid) %>%
+  option_add(id="basic_knn", resamples = train_cv_folds, 
+             grid = knn_grid) %>%
+  option_add(id="basic_svm", resamples = train_cv_folds, 
+             grid = svm_grid)
+
+doParallel::registerDoParallel()  
+all_results <- all_workflows %>%
+  workflow_map(fn = "tune_grid" , resamples = train_cv_folds, 
+               verbose = TRUE)
+
+
+# Check results
+roc_results <- rank_results(all_results, rank_metric = "roc_auc")
+
+raw_roc_auc_plot <- autoplot(all_results, metric = "roc_auc") 
+#raw_roc_auc_plot + theme_bw() + scale_color_manual(values = pals::kelly()[c(3,4,5,6,8,9)]) +
+#  guides(
+#    shape = "none") + theme(legend.position = "top") +guides(color=guide_legend(nrow=3,byrow=TRUE))
+
+
+best_roc_auc_plot <- autoplot(
+  all_results,
+  rank_metric = "roc_auc",  # <- how to order models
+  metric = "roc_auc",       # <- which metric to visualize
+  select_best = TRUE     # <- one point per workflow
+) +
+  lims(y = c(0.5, 1)) +
+  theme(
+    axis.title = element_text(size = 18),   # Increase axis title size
+    axis.text = element_text(size = 14),       # Increase legend text size
+    legend.title = element_text(size = 14),
+    legend.text = element_text(size = 14))
+#best_roc_auc_plot + theme_bw() + scale_color_manual(values = pals::kelly()[c(3,4,5,6,8,9)]) +
+#  guides(
+#    shape = "none") + theme(legend.position = "top") +guides(color=guide_legend(nrow=3,byrow=TRUE))
+
+raw_accuracy_plot <- autoplot(all_results, metric = "accuracy", select_best = T, std_errs = 1) 
+raw_accuracy_plot + theme_bw() + scale_color_manual(values = pals::kelly()[c(3,7,4,5,6,9)]) +
+  guides(
+    shape = "none") + theme(legend.position = "top") +guides(color=guide_legend(nrow=3,byrow=TRUE)) +
+  ylim(0.5,1) 
+
+
+# Get all workflow IDs
+workflow_ids <- all_results %>% pull(wflow_id)
+
+# Loop through all workflows to get the best result based on ROC AUC
+best_results_list <- lapply(workflow_ids, function(id) {
+  # Extract results for the current workflow ID
+  result <- extract_workflow_set_result(all_results, id = id)
+  # Get the best result based on ROC AUC
+  best_result <- show_best(result, metric = "roc_auc", n = 1)
+  # Add workflow_id to the result
+  best_result$workflow_id <- id
+  return(best_result)
+})
+
+# Combine all best results into a single data frame
+best_results_df <- bind_rows(best_results_list)
+
+best_model_info <- head(roc_results, 1)
+
+best_model <- all_results %>%
+  extract_workflow_set_result(best_model_info$wflow_id) %>%
+  select_best(metric = "roc_auc")
+
+# Finalize the model 
+final_wflow <- all_results %>%
+  extract_workflow(best_model_info$wflow_id) %>% 
+  finalize_workflow(best_model)
+```
+
+
+### 5C. Testing best model in unseen data
+
+```{r 5C, warning=FALSE, message=FALSE}
+final_fit <- fit(final_wflow, data = train_data_selected)
+
+test_results <- predict(final_fit, new_data = test_data_selected, type = "class") %>%
+  bind_cols(test_data_selected)
+
+test_results_prob <- predict(final_fit, new_data = test_data_selected, type = "prob") %>%
+  bind_cols(test_data_selected)
+
+# Collect predictions and make confusion matrix
+test_results <- test_results %>%
+  mutate(
+    cluster = as.factor(cluster),
+    .pred_class = as.factor(.pred_class)
+  )
+
+# Calculate ROC AUC
+test_results_prob <- test_results_prob %>%
+  mutate(
+    cluster = as.factor(cluster))
+
+roc_auc_metric_validation <- test_results_prob %>%
+  roc_auc(truth = cluster, .pred_C1)
+
+classification_metrics <- test_results %>%
+  metrics(truth = cluster, estimate = .pred_class)
+
+conf_matrix <- test_results %>% 
+  conf_mat(truth = cluster, estimate = .pred_class)
+
+#Final visualization and plots ------------------
+# Convert confusion matrix to a tidy format
+conf_matrix_tidy <- as.data.frame(conf_matrix$table)
+
+# Extract classification metrics (e.g., accuracy, precision, recall, etc.)
+accuracy <- classification_metrics %>%
+  filter(.metric == "accuracy") %>%
+  pull(.estimate)
+
+kap <- classification_metrics %>%
+  filter(.metric == "kap") %>%
+  pull(.estimate)
+
+
+roc_auc <- roc_auc_metric_validation %>%
+  pull(.estimate)
+
+conf_matrix_heatmap <- ggplot(conf_matrix_tidy, aes(x = Prediction, y = Truth, fill = Freq)) +
+  geom_tile() +
+  geom_text(aes(label = Freq), color = "white", size = 5) +
+  scale_fill_gradientn(colours = rev(pals::ocean.ice(11)[3:11])) +
+  labs(
+    title = paste0("Confusion Matrix Heatmap"),
+    x = "Predicted",
+    y = "Actual",
+    subtitle = paste0("ROC AUC: ", round(roc_auc, 3), 
+                      "\nAccuracy: ", round(accuracy, 3),
+                      "\nKap: ", round(kap, 3))
+  ) + theme_minimal() +
+  theme(axis.title = element_text(size = 16),   # Increase axis title size
+        axis.text = element_text(size = 14),
+        plot.title = element_text(size = 16, face = "bold"),
+        plot.subtitle = element_text(size = 16) )
+
+conf_matrix_heatmap
+```
+
+

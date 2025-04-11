@@ -1,0 +1,51 @@
+[2025-04-11 11:41:26] [INFO]    [OmnipathR] Welcome to OmnipathR!
+[2025-04-11 11:41:26] [INFO]    [OmnipathR] OmnipathR version: 3.14.0
+[2025-04-11 11:41:26] [TRACE]   [OmnipathR] Reading JSON from `C:\Users\pc17e838\AppData\Local\Cache\OmnipathR/cache.json` (encoding: UTF-8).
+[2025-04-11 11:41:26] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2025-04-11 11:41:26] [INFO]    [OmnipathR] Initialized cache: `C:\Users\pc17e838\AppData\Local\Cache\OmnipathR`.
+[2025-04-11 11:41:26] [TRACE]   [OmnipathR] Reading JSON from `C:/Users/pc17e838/AppData/Local/R/win-library/4.4/OmnipathR/db/db_def.json` (encoding: UTF-8).
+[2025-04-11 11:41:26] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2025-04-11 11:41:26] [TRACE]   [OmnipathR] Reading JSON from `C:/Users/pc17e838/AppData/Local/R/win-library/4.4/OmnipathR/internal/magic_bytes.json` (encoding: UTF-8).
+[2025-04-11 11:41:26] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2025-04-11 11:41:26] [TRACE]   [OmnipathR] Reading JSON from `C:/Users/pc17e838/AppData/Local/R/win-library/4.4/OmnipathR/internal/urls.json` (encoding: UTF-8).
+[2025-04-11 11:41:26] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2025-04-11 11:41:26] [TRACE]   [OmnipathR] Reading JSON from `C:/Users/pc17e838/AppData/Local/R/win-library/4.4/OmnipathR/internal/id_types.json` (encoding: UTF-8).
+[2025-04-11 11:41:26] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2025-04-11 11:41:26] [INFO]    [OmnipathR] Loading database `Ensembl and OMA organism names`.
+[2025-04-11 11:41:26] [INFO]    [OmnipathR] Looking up in cache `https://www.ensembl.org/info/about/species.html`: key=7332486db7400730697234bad76ca0c8e4d00799, latest version=1.
+[2025-04-11 11:41:26] [TRACE]   [OmnipathR] Cache file path: C:\Users\pc17e838\AppData\Local\Cache\OmnipathR/7332486db7400730697234bad76ca0c8e4d00799-1.html
+[2025-04-11 11:41:26] [TRACE]   [OmnipathR] Looking up in cache: `https://omabrowser.org/All/oma-species.txt`.
+[2025-04-11 11:41:26] [TRACE]   [OmnipathR] Loaded data from RDS `C:\Users\pc17e838\AppData\Local\Cache\OmnipathR/30e690cbb55dfc63b5903ab337f34ffc2f4be397-1.rds`.
+[2025-04-11 11:41:26] [INFO]    [OmnipathR] Loaded database `Ensembl and OMA organism names`.
+[2025-04-11 11:41:26] [TRACE]   [OmnipathR] Arguments for OmniPath query: [loops=TRUE,extra_attrs=TRUE,organisms=9606,genesymbols=TRUE,query_type=interactions,datasets=collectri]
+[2025-04-11 11:41:26] [TRACE]   [OmnipathR] Organism(s): 9606
+[2025-04-11 11:41:26] [TRACE]   [OmnipathR] Orthology targets: 
+[2025-04-11 11:41:26] [TRACE]   [OmnipathR] Looking up in cache: `https://omnipathdb.org/interactions?genesymbols=yes&datasets=collectri&organisms=9606&fields=extra_attrs,sources,references,curation_effort&loops=yes&license=academic`
+[2025-04-11 11:41:26] [TRACE]   [OmnipathR] Loaded data from RDS `C:\Users\pc17e838\AppData\Local\Cache\OmnipathR/76e3673f92890910194d45678b3125a5674920d6-1.rds`.
+[2025-04-11 11:41:26] [INFO]    [OmnipathR] Loaded from cache: `https://omnipathdb.org/interactions?genesymbols=yes&datasets=collectri&organisms=9606&fields=extra_attrs,sources,references,curation_effort&loops=yes&license=academic`
+[2025-04-11 11:41:26] [TRACE]   [OmnipathR] Converting JSON column `extra_attrs` to list.
+[2025-04-11 11:41:29] [SUCCESS] [OmnipathR] Loaded 64958 interactions from cache.
+[2025-04-11 11:41:29] [TRACE]   [OmnipathR] Arguments for OmniPath query: [genesymbols=TRUE,resources=CollecTRI,strict_evidences=TRUE,extra_attrs=TRUE,query_type=interactions,datasets=tf_mirna]
+[2025-04-11 11:41:29] [TRACE]   [OmnipathR] Organism(s): 9606
+[2025-04-11 11:41:29] [TRACE]   [OmnipathR] Orthology targets: 
+[2025-04-11 11:41:29] [TRACE]   [OmnipathR] Reading JSON from `https://omnipathdb.org/resources` (encoding: UTF-8).
+[2025-04-11 11:41:29] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2025-04-11 11:41:29] [TRACE]   [OmnipathR] Looking up in cache: `https://omnipathdb.org/interactions?genesymbols=yes&resources=CollecTRI&datasets=tf_mirna&organisms=9606&fields=extra_attrs,evidences,sources,references,curation_effort&license=academic`
+[2025-04-11 11:41:29] [TRACE]   [OmnipathR] Loaded data from RDS `C:\Users\pc17e838\AppData\Local\Cache\OmnipathR/911416570c2aaa914be32ebf7b85e1eb3d1ff162-1.rds`.
+[2025-04-11 11:41:29] [INFO]    [OmnipathR] Loaded from cache: `https://omnipathdb.org/interactions?genesymbols=yes&resources=CollecTRI&datasets=tf_mirna&organisms=9606&fields=extra_attrs,evidences,sources,references,curation_effort&license=academic`
+[2025-04-11 11:41:29] [TRACE]   [OmnipathR] Converting JSON column `extra_attrs` to list.
+[2025-04-11 11:41:29] [TRACE]   [OmnipathR] Converting JSON column `evidences` to list.
+[2025-04-11 11:41:29] [TRACE]   [OmnipathR] Restricting interaction records to datasets: tf_mirna; and resources: CollecTRI
+[2025-04-11 11:41:29] [TRACE]   [OmnipathR] Filtering evidence columns: positive, negative, directed, undirected; to datasets: tf_mirna; and resources: CollecTRI; excluding resources: none
+[2025-04-11 11:41:29] [SUCCESS] [OmnipathR] Downloaded 232 interactions.
+[2025-04-11 11:41:57] [TRACE]   [OmnipathR] Reading JSON from `https://omnipathdb.org/resources` (encoding: UTF-8).
+[2025-04-11 11:41:57] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2025-04-11 11:41:57] [TRACE]   [OmnipathR] Arguments for OmniPath query: [wide=TRUE,resources=PROGENy,query_type=annotations]
+[2025-04-11 11:41:57] [TRACE]   [OmnipathR] Organism(s): 9606
+[2025-04-11 11:41:57] [TRACE]   [OmnipathR] Orthology targets: 
+[2025-04-11 11:41:57] [TRACE]   [OmnipathR] Reading JSON from `https://omnipathdb.org/resources` (encoding: UTF-8).
+[2025-04-11 11:41:57] [TRACE]   [OmnipathR] JSON validation successful: TRUE
+[2025-04-11 11:41:57] [TRACE]   [OmnipathR] Looking up in cache: `https://omnipathdb.org/annotations?resources=PROGENy&license=academic`
+[2025-04-11 11:41:58] [TRACE]   [OmnipathR] Loaded data from RDS `C:\Users\pc17e838\AppData\Local\Cache\OmnipathR/3492392585ba05414edfae46801492076437d7e7-1.rds`.
+[2025-04-11 11:41:58] [INFO]    [OmnipathR] Loaded from cache: `https://omnipathdb.org/annotations?resources=PROGENy&license=academic`
+[2025-04-11 11:41:58] [SUCCESS] [OmnipathR] Loaded 700257 annotation records from cache.
