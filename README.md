@@ -1,4 +1,4 @@
-# PCa_paper
+# Kang and Chouvardas et al. 2025
 This repository contains the code used in the paper:
 # Multi-layer stratified oncology platform utilizing transcriptomics, prostate cancer organoids, and  modeling of drug response
 
