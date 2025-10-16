@@ -1,5 +1,5 @@
 # Kang and Chouvardas et al. 2025
-This repository contains the code used in the paper:
+This repository contains the code used in the paper: https://jeccr.biomedcentral.com/articles/10.1186/s13046-025-03540-2
 # Multi-layer stratified oncology platform utilizing transcriptomics, prostate cancer organoids, and  modeling of drug response
 
 Juening Kang, Panagiotis Chouvardas, Andrew Maalouf, Daniel Hanhart, Laura Fernárdez Cerro, Eva Comperat, Katja Ovchinnikova, Ulrich Schneeberger, Beat Roth, George N. Thalmann, Sofia Karkampouna, Marianna Kruithof-de Julio
